@@ -1,4 +1,4 @@
-import { ChatGPTRequest, ChatGPTResponse } from '@/interfaces/gpt.interface';
+import { ChatGPTRequest } from '@/interfaces/gpt.interface';
 import { Service } from 'typedi';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from '@/config';
