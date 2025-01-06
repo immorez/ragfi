@@ -104,7 +104,7 @@ paths:
           description: 'Server Error'
 
   # [GET] news
-  /news:
+  /news/search:
     get:
       tags:
         - news

@@ -3,6 +3,7 @@ import { NewsService } from '@services/news.service';
 import { NewsArticle } from '@interfaces/news.interface';
 import { AlphaVantageService } from '@/services/alphaVantage.service';
 import Container from 'typedi';
+import { alphaVantageDateDecoder, alphaVantageDateFormatter } from '@/utils/date-utils';
 
 export class NewsController {
   private newsService = Container.get(NewsService);
@@ -121,14 +122,8 @@ export class NewsController {
       } else {
         const now = new Date();
         const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        fromTime = oneDayAgo
-          .toISOString()
-          .replace(/[-:.TZ]/g, '')
-          .slice(0, 14);
-        toTime = now
-          .toISOString()
-          .replace(/[-:.TZ]/g, '')
-          .slice(0, 14);
+        fromTime = alphaVantageDateFormatter(oneDayAgo);
+        toTime = alphaVantageDateFormatter(now);
       }
 
       const response = await this.alphaVantageService.fetchFromAlphaVantage<{ feed: NewsArticle[] }>('NEWS_SENTIMENT', {
@@ -142,12 +137,11 @@ export class NewsController {
 
       const newsData = response.feed;
 
-      // Transform and ingest news articles into Elasticsearch
       const transformedNews: NewsArticle[] = newsData.map(item => ({
         title: item.title,
         url: item.url,
         summary: item.summary,
-        publishedDate: item.time_published,
+        publishedDate: alphaVantageDateDecoder(item.time_published),
         authors: item.authors,
         source: item.source,
         topics: item.topics,

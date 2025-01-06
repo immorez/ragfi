@@ -20,7 +20,7 @@ export class NewsRoute implements Routes {
 
     this.router.post(`${this.path}/fetch-ingest-latest`, this.newsController.fetchAndIngestLatestNews);
 
-    this.router.get(`${this.path}/search`, AuthMiddleware, this.newsController.searchNews);
+    this.router.get(`${this.path}/search`, this.newsController.searchNews);
 
     this.router.get(`${this.path}/:id`, AuthMiddleware, this.newsController.getNewsById);
 

@@ -1,0 +1,30 @@
+{
+  "mappings": {
+    "properties": {
+      "title": { "type": "text" },
+      "url": { "type": "keyword" },
+      "summary": { "type": "text" },
+      "publishedDate": { "type": "date" },
+      "authors": { "type": "keyword" },
+      "source": { "type": "keyword" },
+      "topics": {
+        "type": "nested",
+        "properties": {
+          "topic": { "type": "keyword" },
+          "relevance_score": { "type": "float" }
+        }
+      },
+      "overall_sentiment_score": { "type": "float" },
+      "overall_sentiment_label": { "type": "keyword" },
+      "ticker_sentiment": {
+        "type": "nested",
+        "properties": {
+          "ticker": { "type": "keyword" },
+          "relevance_score": { "type": "float" },
+          "ticker_sentiment_score": { "type": "float" },
+          "ticker_sentiment_label": { "type": "keyword" }
+        }
+      }
+    }
+  }
+}

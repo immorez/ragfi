@@ -12,6 +12,8 @@ import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
 import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import Container from 'typedi';
+import { ElasticService } from './services/elastic.service';
 
 export class App {
   public app: express.Application;
@@ -27,6 +29,7 @@ export class App {
     this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
+    this.initializeElastic();
   }
 
   public listen() {
@@ -73,6 +76,11 @@ export class App {
 
     const specs = swaggerJSDoc(options);
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+  }
+
+  private async initializeElastic() {
+    const elasticService = Container.get(ElasticService);
+    await elasticService.ensureIndex('news');
   }
 
   private initializeErrorHandling() {
