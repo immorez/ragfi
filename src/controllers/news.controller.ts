@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { Service } from 'typedi';
 import { NewsService } from '@services/news.service';
 import { NewsArticle } from '@interfaces/news.interface';
 import { AlphaVantageService } from '@/services/alphaVantage.service';
+import Container from 'typedi';
 
-@Service()
 export class NewsController {
-  constructor(private readonly newsService: NewsService, private readonly alphaVantageService: AlphaVantageService) {}
+  private newsService = Container.get(NewsService);
+  private alphaVantageService = Container.get(AlphaVantageService);
 
   /**
    * Ingest news articles into Elasticsearch
