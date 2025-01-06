@@ -1,14 +1,14 @@
-version: "3.9"
+version: '3.9'
 
 services:
   proxy:
     container_name: proxy
     image: nginx:alpine
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-    restart: "unless-stopped"
+    restart: 'unless-stopped'
     networks:
       - backend
 
@@ -18,29 +18,50 @@ services:
       context: ./
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
-      DATABASE_URL: mysql://root:password@localhost:3306/dev
+      DATABASE_URL: mysql://root:password@mysql:3306/dev
+      ELASTICSEARCH_URL: http://elasticsearch:9200
     volumes:
       - ./:/app
       - /app/node_modules
-    restart: "unless-stopped"
+    restart: 'unless-stopped'
     networks:
       - backend
     links:
       - mysql
+      - elasticsearch
     depends_on:
       - mysql
+      - elasticsearch
 
   mysql:
     container_name: mysql
     image: mysql:5.7
     environment:
-      DATABASE_URL: mysql://root:password@localhost:3306/dev
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: dev
     ports:
-      - "3306:3306"
+      - '3306:3306'
     networks:
       - backend
+    volumes:
+      - data:/var/lib/mysql
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    networks:
+      - backend
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    restart: 'unless-stopped'
 
 networks:
   backend:
@@ -48,4 +69,6 @@ networks:
 
 volumes:
   data:
+    driver: local
+  es_data:
     driver: local

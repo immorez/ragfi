@@ -1,4 +1,3 @@
-import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import App from '@/app';
