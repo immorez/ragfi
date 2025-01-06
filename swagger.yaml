@@ -1,13 +1,13 @@
 tags:
-- name: users
-  description: users API
+  - name: users
+    description: users API
 
 paths:
-# [GET] users
+  # [GET] users
   /users:
     get:
       tags:
-      - users
+        - users
       summary: Find All Users
       responses:
         200:
@@ -15,18 +15,18 @@ paths:
         500:
           description: 'Server Error'
 
-# [POST] users
+    # [POST] users
     post:
       tags:
-      - users
+        - users
       summary: Add User
       parameters:
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/users'
       responses:
         201:
           description: 'Created'
@@ -37,18 +37,18 @@ paths:
         500:
           description: 'Server Error'
 
-# [GET] users/id
+  # [GET] users/id
   /users/{id}:
     get:
       tags:
-      - users
+        - users
       summary: Find User By Id
       parameters:
-      - name: id
-        in: path
-        description: User Id
-        required: true
-        type: integer
+        - name: id
+          in: path
+          description: User Id
+          required: true
+          type: integer
       responses:
         200:
           description: 'OK'
@@ -57,23 +57,23 @@ paths:
         500:
           description: 'Server Error'
 
-# [PUT] users/id
+    # [PUT] users/id
     put:
       tags:
-      - users
+        - users
       summary: Update User By Id
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: id
+          in: path
+          description: user Id
+          required: true
+          type: integer
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/users'
       responses:
         200:
           description: 'OK'
@@ -84,17 +84,17 @@ paths:
         500:
           description: 'Server Error'
 
-# [DELETE] users/id
+    # [DELETE] users/id
     delete:
       tags:
-      - users
+        - users
       summary: Delete User By Id
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
+        - name: id
+          in: path
+          description: user Id
+          required: true
+          type: integer
       responses:
         200:
           description: 'OK'
@@ -103,13 +103,159 @@ paths:
         500:
           description: 'Server Error'
 
+  # [GET] news
+  /news:
+    get:
+      tags:
+        - news
+      summary: Find All News Articles
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+
+    # [POST] news
+    post:
+      tags:
+        - news
+      summary: Add News Article
+      parameters:
+        - name: body
+          in: body
+          description: News Article Data
+          required: true
+          schema:
+            $ref: '#/definitions/news'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+  # [GET] news/id
+  /news/{id}:
+    get:
+      tags:
+        - news
+      summary: Find News Article By Id
+      parameters:
+        - name: id
+          in: path
+          description: News Article Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+
+    # [PUT] news/id
+    put:
+      tags:
+        - news
+      summary: Update News Article By Id
+      parameters:
+        - name: id
+          in: path
+          description: News Article Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: News Article Data
+          required: true
+          schema:
+            $ref: '#/definitions/news'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+
+    # [DELETE] news/id
+    delete:
+      tags:
+        - news
+      summary: Delete News Article By Id
+      parameters:
+        - name: id
+          in: path
+          description: News Article Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+
+  # [POST] news/fetch-ingest-latest
+  /news/fetch-ingest-latest:
+    post:
+      tags:
+        - news
+      summary: 'Fetch and Ingest Latest News'
+      description: 'Fetches the latest news articles from external API (e.g., Alpha Vantage) based on the query parameters and ingests them into Elasticsearch.'
+      parameters:
+        - name: tickers
+          in: query
+          description: 'Comma-separated list of tickers to filter news (e.g., `AAPL,MSFT`)'
+          required: false
+          schema:
+            type: string
+        - name: topics
+          in: query
+          description: 'Comma-separated list of topics to filter news (e.g., `Technology,Earnings`)'
+          required: false
+          schema:
+            type: string
+        - name: time_from
+          in: query
+          description: 'Start time for fetching news in `YYYYMMDDTHHmm` format (e.g., `20240101T0000`)'
+          required: false
+          schema:
+            type: string
+        - name: time_to
+          in: query
+          description: 'End time for fetching news in `YYYYMMDDTHHmm` format (e.g., `20240102T0000`)'
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 'Maximum number of results to fetch (default: 50)'
+          required: false
+          schema:
+            type: integer
+      responses:
+        201:
+          description: 'News articles ingested successfully'
+        400:
+          description: 'Bad Request'
+        500:
+          description: 'Server Error'
+
 # definitions
 definitions:
   users:
     type: object
     required:
-        - email
-        - password
+      - email
+      - password
     properties:
       email:
         type: string
@@ -118,6 +264,99 @@ definitions:
         type: string
         description: user Password
 
+  news:
+    type: object
+    required:
+      - title
+      - url
+      - summary
+      - publishedDate
+      - authors
+      - source
+    properties:
+      title:
+        type: string
+        description: News Article Title
+      url:
+        type: string
+        description: News Article URL
+      summary:
+        type: string
+        description: News Article Summary
+      publishedDate:
+        type: string
+        format: date-time
+        description: Published Date (ISO 8601)
+      authors:
+        type: array
+        items:
+          type: string
+        description: List of Authors
+      source:
+        type: string
+        description: News Source
+      topics:
+        type: array
+        items:
+          type: object
+          properties:
+            topic:
+              type: string
+              description: Topic Name
+            relevance_score:
+              type: number
+              format: float
+              description: Relevance Score
+        description: List of Topics with Relevance Scores
+      overall_sentiment_score:
+        type: number
+        format: float
+        description: Overall Sentiment Score
+      overall_sentiment_label:
+        type: string
+        description: Overall Sentiment Label
+      ticker_sentiment:
+        type: array
+        items:
+          type: object
+          properties:
+            ticker:
+              type: string
+              description: Stock or Asset Ticker
+            relevance_score:
+              type: number
+              format: float
+              description: Ticker Relevance Score
+            ticker_sentiment_score:
+              type: number
+              format: float
+              description: Sentiment Score for the Ticker
+            ticker_sentiment_label:
+              type: string
+              description: Sentiment Label for the Ticker
+        description: Sentiment Analysis for Tickers
+
+  newsFetchQuery:
+    type: object
+    properties:
+      tickers:
+        type: string
+        description: Comma-separated list of tickers
+      topics:
+        type: string
+        description: Comma-separated list of topics
+      time_from:
+        type: string
+        format: date-time
+        description: Start time for fetching news (ISO 8601)
+      time_to:
+        type: string
+        format: date-time
+        description: End time for fetching news (ISO 8601)
+      limit:
+        type: integer
+        description: Maximum number of results to fetch
+
 schemes:
- - https
- - http
+  - https
+  - http

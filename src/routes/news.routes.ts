@@ -18,7 +18,7 @@ export class NewsRoute implements Routes {
     // Ingest news articles manually
     this.router.post(`${this.path}/ingest`, AuthMiddleware, ValidationMiddleware(IngestNewsDto), this.newsController.ingestNews);
 
-    this.router.post(`${this.path}/fetch-ingest-latest`, AuthMiddleware, this.newsController.fetchAndIngestLatestNews);
+    this.router.post(`${this.path}/fetch-ingest-latest`, this.newsController.fetchAndIngestLatestNews);
 
     this.router.get(`${this.path}/search`, AuthMiddleware, this.newsController.searchNews);
 
