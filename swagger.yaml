@@ -1,6 +1,10 @@
 tags:
   - name: users
     description: users API
+  - name: news
+    description: News API
+  - name: gpt
+    description: GPT API
 
 paths:
   # [GET] users
@@ -248,7 +252,61 @@ paths:
           description: 'Bad Request'
         500:
           description: 'Server Error'
-
+  # [GET] /gpt/chatgpt/stream
+  /gpt/chatgpt/stream:
+    get:
+      tags:
+        - gpt
+      summary: Stream GPT responses via Server-Sent Events (SSE)
+      description: Streams GPT-generated answers chunk by chunk to the client.
+      parameters:
+        - name: prompt
+          in: query
+          description: The user prompt for GPT to generate a response.
+          required: true
+          schema:
+            type: string
+        - name: model
+          in: query
+          description: The GPT model to use (e.g., gpt-3.5-turbo, gpt-4).
+          required: false
+          schema:
+            type: string
+        - name: maxTokens
+          in: query
+          description: The maximum number of tokens for the response.
+          required: false
+          schema:
+            type: integer
+        - name: temperature
+          in: query
+          description: Sampling temperature, between 0 and 2.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: topP
+          in: query
+          description: Nucleus sampling parameter, between 0 and 1.
+          required: false
+          schema:
+            type: number
+            format: float
+      responses:
+        200:
+          description: Successful stream of GPT-generated chunks.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  data: "This is the first chunk of GPT response.\n\n"
+                  data: "This is the second chunk of GPT response.\n\n"
+                  data: [DONE]
+        400:
+          description: Bad Request - Missing required parameters.
+        500:
+          description: Server Error
 # definitions
 definitions:
   users:
