@@ -25,7 +25,7 @@ export class AlphaVantageService {
    * @param params Additional query parameters for the API
    * @returns Parsed API response
    */
-  public async fetchFromAlphaVantage<T>(func: string, params: Record<string, any>): Promise<T> {
+  public async fetchFromAlphaVantage<T>(func: string, params: Record<string, unknown>): Promise<T> {
     try {
       const response = await this.apiClient.get('', {
         params: {
