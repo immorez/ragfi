@@ -1,17 +1,69 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  canisters Canister[]
+  pipelines Pipeline[]
+  actions   Action[]
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
+model Canister {
+  id          String     @id @default(uuid(7))
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  pipelines   Pipeline[]
+  actions     Action[]
+}
+
+model Pipeline {
+  id          String   @id @default(uuid(7))
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canisterId  String
+  canister    Canister @relation(fields: [canisterId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  actions     Action[]
+}
+
+model Action {
+  id         String       @id @default(uuid(7))
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canisterId String?
+  canister   Canister?    @relation(fields: [canisterId], references: [id], onDelete: Cascade)
+  pipelineId String?
+  pipeline   Pipeline?    @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  name       String
+  type       String
+  inputData  Json?
+  outputData Json?
+  status     ActionStatus @default(PENDING)
+  order      Int
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
 }
