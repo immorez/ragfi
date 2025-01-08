@@ -34,7 +34,7 @@ RAGFi is a **Retrieval-Augmented Generation Framework** designed to enhance deci
 ### Server (`server`)
 
 - **Dockerfile**: `Dockerfile.dev` (for development).
-- **Port**: Exposes the application on port `3000`.
+- **Port**: Exposes the application on port `3001`.
 - **Environment Variables**:
   - `DATABASE_URL`: Connection string for MySQL.
   - `ELASTICSEARCH_URL`: URL for Elasticsearch integration.
@@ -104,7 +104,7 @@ docker-compose up -d
 Check that the services are running and accessible:
 
 - NGINX: http://localhost
-- Server: http://localhost:3000
-- Swagger: http://localhost:3000/api-docs
+- Server: http://localhost:3001
+- Swagger: http://localhost:3001/api-docs
 - Elasticsearch: http://localhost:9200
 - MySQL: Connect to port 3306 using root as the username and the password specified in the MYSQL_ROOT_PASSWORD environment variable.

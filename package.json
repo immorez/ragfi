@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.17.0",
+    "@huggingface/transformers": "^3.2.4",
     "@prisma/client": "^4.1.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.0.1",

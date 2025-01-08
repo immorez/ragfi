@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { NewsService } from '@services/news.service';
+import { EmbeddingService } from '@/services/embedding.service';
 import { NewsArticle } from '@interfaces/news.interface';
 import { AlphaVantageService } from '@/services/alphaVantage.service';
 import Container from 'typedi';
@@ -8,6 +9,7 @@ import { alphaVantageDateDecoder, alphaVantageDateFormatter } from '@/utils/date
 export class NewsController {
   private newsService = Container.get(NewsService);
   private alphaVantageService = Container.get(AlphaVantageService);
+  private embeddingService = Container.get(EmbeddingService);
 
   /**
    * Ingest news articles into Elasticsearch
@@ -137,19 +139,26 @@ export class NewsController {
 
       const newsData = response.feed;
 
-      const transformedNews: NewsArticle[] = newsData.map(item => ({
-        title: item.title,
-        url: item.url,
-        summary: item.summary,
-        publishedDate: alphaVantageDateDecoder(item.time_published),
-        authors: item.authors,
-        source: item.source,
-        topics: item.topics,
-        overall_sentiment_score: item.overall_sentiment_score,
-        overall_sentiment_label: item.overall_sentiment_label,
-        ticker_sentiment: item.ticker_sentiment,
-        time_published: item.time_published,
-      }));
+      const transformedNews: NewsArticle[] = await Promise.all(
+        newsData.map(async item => {
+          const text = `${item.title}. ${item.summary}`;
+          const embedding = await this.embeddingService.generateEmbedding(text);
+          return {
+            title: item.title,
+            url: item.url,
+            summary: item.summary,
+            publishedDate: alphaVantageDateDecoder(item.time_published),
+            authors: item.authors,
+            source: item.source,
+            topics: item.topics,
+            overall_sentiment_score: item.overall_sentiment_score,
+            overall_sentiment_label: item.overall_sentiment_label,
+            ticker_sentiment: item.ticker_sentiment,
+            time_published: item.time_published,
+            embedding,
+          };
+        }),
+      );
 
       await this.newsService.ingestNews(transformedNews);
 

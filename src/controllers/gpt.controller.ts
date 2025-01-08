@@ -1,5 +1,7 @@
+import { EmbeddingService } from '@/services/embedding.service';
 import { GPTService } from '@/services/gpt.service';
 import { NewsService } from '@/services/news.service';
+import { logger } from '@/utils/logger';
 import { generateAnalysisPrompt } from '@/utils/prompt-utils';
 import { NextFunction, Request, Response } from 'express';
 import Container, { Service } from 'typedi';
@@ -8,6 +10,7 @@ import Container, { Service } from 'typedi';
 export class GPTController {
   private gptService = Container.get(GPTService);
   private newsService = Container.get(NewsService);
+  private embeddingService = Container.get(EmbeddingService);
 
   public streamChatGPTAnswer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -27,6 +30,19 @@ export class GPTController {
             fields: ['summary', 'title'],
           },
         });
+
+        const queryEmbedding = await this.embeddingService.generateEmbedding(text as string);
+        if (queryEmbedding) {
+          query.bool.must.push({
+            script_score: {
+              query: { match_all: {} },
+              script: {
+                source: "cosineSimilarity(params.queryVector, 'embedding') + 1.0",
+                params: { queryVector: queryEmbedding },
+              },
+            },
+          });
+        }
       }
 
       if (topic) {

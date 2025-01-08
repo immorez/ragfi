@@ -18,7 +18,7 @@ services:
       context: ./
       dockerfile: Dockerfile.dev
     ports:
-      - '3000:3000'
+      - '3001:3001'
     environment:
       DATABASE_URL: mysql://root:password@mysql:3306/dev
       ELASTICSEARCH_URL: http://elasticsearch:9200
