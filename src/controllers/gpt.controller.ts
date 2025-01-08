@@ -87,15 +87,10 @@ export class GPTController {
         },
         onStreamEnd: () => {
           try {
-            // Final clean-up and formatting
-            const readableOutput = buffer
-              .replace(/""/g, '') // Remove excessive quotes
-              .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
-              .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-              .trim();
+            const readableOutput = buffer.replace(/""/g, '').replace(/\\n/g, '\n').replace(/\s+/g, ' ').trim();
 
             console.log('\n--- Reconstructed Response ---\n');
-            console.log(readableOutput); // Log the readable response
+            console.log(readableOutput);
             res.write('data: [DONE]\n\n');
             res.end();
           } catch (error) {
