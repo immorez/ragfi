@@ -82,7 +82,7 @@ export class GPTController {
             }
             res.write(chunk);
           } catch (error) {
-            console.error('Error processing chunk:', error.message);
+            logger.error('Error processing chunk:', error.message);
           }
         },
         onStreamEnd: () => {
@@ -94,7 +94,7 @@ export class GPTController {
             res.write('data: [DONE]\n\n');
             res.end();
           } catch (error) {
-            console.error('Error handling stream end:', error.message);
+            logger.error('Error handling stream end:', error.message);
             res.write('data: {"error":"An error occurred while processing the complete response."}\n\n');
             res.end();
           }
