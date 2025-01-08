@@ -25,12 +25,13 @@ export class NewsService {
   /**
    * Search news articles
    * @param query Query object for searching news
+   * @param from Starting index for pagination
+   * @param size Number of results to return per page
    * @returns Array of matched news articles
    */
-  public async searchNews(query: Record<string, any>): Promise<NewsArticle[]> {
-    return this.elasticService.searchDocuments<NewsArticle>('news', query);
+  public async searchNews(query: Record<string, any>, from = 0, size = 10): Promise<NewsArticle[]> {
+    return this.elasticService.searchDocuments<NewsArticle>('news', query, from, size);
   }
-
   /**
    * Get a news article by ID
    * @param newsId News article ID

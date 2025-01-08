@@ -36,14 +36,23 @@ export class ElasticService {
    * Search documents in Elasticsearch
    * @param index Index name
    * @param query Search query
+   * @param from Starting index for pagination
+   * @param size Number of results to return per page
    * @returns Array of documents matching the query
    */
-  public async searchDocuments<T>(index: string, query: Record<string, unknown>): Promise<T[]> {
+  public async searchDocuments<T>(index: string, query: Record<string, unknown>, from = 0, size = 10): Promise<T[]> {
     try {
       const response = await this.elasticClient.search({
         index,
+        from,
+        size,
         query,
       });
+
+      if (!response.hits?.hits || response.hits.hits.length === 0) {
+        throw new HttpException(404, `No documents found in index: ${index}`);
+      }
+
       return response.hits.hits.map((hit: SearchHit<T>) => hit._source as T);
     } catch (error) {
       throw new HttpException(500, `Failed to search documents: ${error.message}`);
@@ -119,8 +128,6 @@ export class ElasticService {
           body: mappings,
         });
         logger.info(`Index "${name}" created successfully.`);
-      } else {
-        logger.info(`Index "${name}" already exists.`);
       }
     } catch (e) {
       logger.error(e);

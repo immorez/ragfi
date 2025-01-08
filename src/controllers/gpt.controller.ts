@@ -11,19 +11,47 @@ export class GPTController {
 
   public streamChatGPTAnswer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { ticker, topic, text, model, maxTokens, temperature, topP } = req.query;
+      const { ticker, topic, text, model, maxTokens, temperature, topP, page, size } = req.query;
 
-      if (!ticker && !topic && !text) {
-        res.status(400).json({ error: 'At least one filter (ticker, topic, or text) is required.' });
-        return;
+      const query: Record<string, any> = {
+        bool: {
+          must: [],
+          filter: [],
+        },
+      };
+
+      if (text) {
+        query.bool.must.push({
+          multi_match: {
+            query: text as string,
+            fields: ['summary', 'title'],
+          },
+        });
       }
 
-      const filters: Record<string, any> = {};
-      if (ticker) filters.ticker = ticker as string;
-      if (topic) filters.topic = topic as string;
-      if (text) filters.text = text as string;
+      if (topic) {
+        query.bool.filter.push({
+          nested: {
+            path: 'topics',
+            query: { match: { 'topics.topic': topic as string } },
+          },
+        });
+      }
 
-      const newsItems = await this.newsService.searchNews(filters);
+      if (ticker) {
+        query.bool.filter.push({
+          nested: {
+            path: 'ticker_sentiment',
+            query: { match: { 'ticker_sentiment.ticker': ticker as string } },
+          },
+        });
+      }
+
+      const pageNumber = page ? parseInt(page as string, 10) : 1;
+      const pageSize = size ? parseInt(size as string, 10) : 10;
+      const from = (pageNumber - 1) * pageSize;
+
+      const newsItems = await this.newsService.searchNews(query, from, pageSize);
 
       if (!newsItems || newsItems.length === 0) {
         res.status(404).json({ error: 'No relevant news found for the provided filters.' });
@@ -32,9 +60,13 @@ export class GPTController {
 
       const prompt = generateAnalysisPrompt(newsItems, ticker as string);
 
+      console.log('Generated Prompt: ', prompt);
+
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+
+      let buffer = '';
 
       await this.gptService.generateChatGPTAnswer({
         prompt,
@@ -43,11 +75,34 @@ export class GPTController {
         temperature: temperature ? parseFloat(temperature as string) : undefined,
         topP: topP ? parseFloat(topP as string) : undefined,
         onWriteChunk: (chunk: string) => {
-          res.write(chunk);
+          try {
+            const cleanedChunk = chunk.replace(/^data: /, '').trim();
+            if (cleanedChunk && cleanedChunk !== '[DONE]') {
+              buffer += cleanedChunk.replace(/""/g, '').replace(/\\n/g, '\n');
+            }
+            res.write(chunk);
+          } catch (error) {
+            console.error('Error processing chunk:', error.message);
+          }
         },
         onStreamEnd: () => {
-          res.write('data: [DONE]\n\n');
-          res.end();
+          try {
+            // Final clean-up and formatting
+            const readableOutput = buffer
+              .replace(/""/g, '') // Remove excessive quotes
+              .replace(/\\n/g, '\n') // Replace escaped newlines with actual newlines
+              .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+              .trim();
+
+            console.log('\n--- Reconstructed Response ---\n');
+            console.log(readableOutput); // Log the readable response
+            res.write('data: [DONE]\n\n');
+            res.end();
+          } catch (error) {
+            console.error('Error handling stream end:', error.message);
+            res.write('data: {"error":"An error occurred while processing the complete response."}\n\n');
+            res.end();
+          }
         },
         onError: () => {
           res.write('data: {"error":"An error occurred while streaming the response."}\n\n');

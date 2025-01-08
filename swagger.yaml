@@ -253,17 +253,30 @@ paths:
         500:
           description: 'Server Error'
   # [GET] /gpt/chatgpt/stream
+  # [GET] /gpt/chatgpt/stream
   /gpt/chatgpt/stream:
     get:
       tags:
         - gpt
       summary: Stream GPT responses via Server-Sent Events (SSE)
-      description: Streams GPT-generated answers chunk by chunk to the client.
+      description: Streams GPT-generated answers chunk by chunk to the client based on provided filters or prompts.
       parameters:
-        - name: prompt
+        - name: ticker
           in: query
-          description: The user prompt for GPT to generate a response.
-          required: true
+          description: Stock ticker to filter relevant news (e.g., MSFT, AAPL).
+          required: false
+          schema:
+            type: string
+        - name: topic
+          in: query
+          description: Topic to filter relevant news (e.g., AI, finance).
+          required: false
+          schema:
+            type: string
+        - name: text
+          in: query
+          description: Text or keyword to match relevant news.
+          required: false
           schema:
             type: string
         - name: model
@@ -304,9 +317,12 @@ paths:
                   data: "This is the second chunk of GPT response.\n\n"
                   data: [DONE]
         400:
-          description: Bad Request - Missing required parameters.
+          description: Bad Request - Missing required or invalid parameters.
+        404:
+          description: No relevant news found based on filters.
         500:
-          description: Server Error
+          description: Server Error - Unable to generate a response or stream output.
+
 # definitions
 definitions:
   users:
