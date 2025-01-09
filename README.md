@@ -8,10 +8,45 @@ RAGFi is a **Retrieval-Augmented Generation Framework** designed to enhance deci
 
 ## Features
 
-- **Proxy**: NGINX serves as a reverse proxy for routing traffic efficiently.
-- **Backend**: A Node.js server handles business logic, connects to MySQL, and integrates with Elasticsearch.
-- **Database**: MySQL provides reliable relational data storage.
-- **Search Engine**: Elasticsearch enables efficient full-text search and vector similarity for complex queries.
+1. **News Ingestion**:
+
+   - Fetch and ingest financial news using the AlphaVantage API.
+   - Automatically deduplicate and index news into Elasticsearch for retrieval.
+
+2. **Text Embedding**:
+
+   - Generate dense vector embeddings for text using Sentence-Transformers.
+   - Store embeddings in Elasticsearch's vector database for semantic search.
+
+3. **Semantic Search**:
+
+   - Search for financial news and topics using text and vector similarity.
+   - Combine keyword and embedding-based searches for accurate results.
+
+4. **GPT Integration**:
+
+   - Generate actionable insights using GPT models.
+   - Stream responses via Server-Sent Events (SSE).
+
+5. **Pagination**:
+
+   - Efficiently paginate search results for large datasets.
+
+6. **Custom Querying**:
+   - Search financial news using filters like tickers, topics, and full-text queries.
+
+---
+
+## Architecture
+
+- **Backend**: Node.js with Express.js and TypeScript
+- **Database**:
+  - Relational Data: MySQL
+  - Semantic Search and Vector Database: Elasticsearch
+- **Text Embeddings**: Sentence-Transformers
+- **API Integrations**:
+  - AlphaVantage for financial news
+  - GPT-based text generation
 
 ---
 
